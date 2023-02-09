@@ -32,10 +32,9 @@ public:
         return true;
     };
     void startConversion() {};
-    int32_t read()
+    int32_t read(int pl_size)
     {
-        value += 2;
-        return value;
+        return (int32_t) pl_size;
     }
 
 private:
