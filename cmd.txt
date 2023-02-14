@@ -1,0 +1,6 @@
+mbed-tools compile -m DISCO_L072CZ_LRWAN1 -t GCC_ARM; \
+sudo umount /dev/disk/by-uuid/2702-1974; \
+sudo mount -U 2702-1974 /mnt/stm32; \
+sudo cp -vf cmake_build/DISCO_L072CZ_LRWAN1/develop/GCC_ARM/*.bin /mnt/stm32; \
+sudo chmod o+rw /dev/ttyACM0; \
+mbed-tools sterm --baudrate 115200
