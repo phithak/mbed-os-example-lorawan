@@ -172,6 +172,17 @@ int main(void)
     printf("payload_inc = %d\n", payload_inc);
     printf("round_per_payload = %d\n", round_per_payload);
 
+    // Compute all_round
+    if (payload_min == payload_max) {
+        all_round = payload_min * round_per_payload;
+    } else {
+        all_round = (payload_max - payload_min) / payload_inc;
+        all_round += ((payload_max - payload_min) % payload_inc) ? 1 : 0;
+        ++all_round;
+        all_round *= round_per_payload;
+    }
+    printf("all_round = %d\n", all_round);
+
     return 0;
 
     // setup tracing
