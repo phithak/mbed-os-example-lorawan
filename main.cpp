@@ -165,7 +165,6 @@ int main(void)
     rtos::ThisThread::sleep_for(200);
     memset(buff, '\0', sizeof(buff));
     i = pc.read(buff, 3);
-    printf("\ni = %d\n", i);
     round_per_payload = atoi(buff);
 
     printf("payload_min = %d\n", payload_min);
