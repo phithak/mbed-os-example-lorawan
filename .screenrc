@@ -1,10 +1,11 @@
 defutf8 on
 defscrollback 10000
 sessionname mbed-os-example-lorawan
-screen -t "mbed->main.cpp" 0
-screen -t "mbed->mbed_app.json" 1
-screen -t "mbed-os" 2
-screen -t "build" 3
-screen -t "run" 4
-screen -t "general" 5
-screen -t "general" 6
+screen -t "mbed->main.cpp"
+screen -t "mbed->mbed_app.json"
+screen -t "mbed-os"
+screen -t "build"
+screen -t "run"
+screen -t "console"
+screen -t "general"
+screen -t "general"
