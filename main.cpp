@@ -93,13 +93,11 @@ static lorawan_app_callbacks_t callbacks;
 /**
  * Global variables for experiments
  */
-int all_round;
-int current_round;
-int increment;
-int payload_start;
-int payload_stop;
-int key_size;
+int payload_min;
+int payload_max;
+int payload_inc;
 int round_per_payload;
+int all_round;
 
 /**
  * Entry point for application
@@ -116,7 +114,7 @@ int main(void)
     // aaa = number of bits (128, 192, 256)
     // bbb = number of beginning payload size (1 to 222)
     // ccc = number of ending pay load size (1 to 222)
-    // ddd = number of increment
+    // ddd = number of payload_inc
     // eee = number of rounds
     while(1) {
         pc.read(c, 1);
@@ -145,29 +143,23 @@ int main(void)
     // Print i for debugging if needed
     int i;
 
-    // key_size
+    // payload_min
     rtos::ThisThread::sleep_for(200);
     memset(buff, '\0', sizeof(buff));
     i = pc.read(buff, 3);
-    key_size = atoi(buff);
-
-    // payload_start
-    rtos::ThisThread::sleep_for(200);
-    memset(buff, '\0', sizeof(buff));
-    i = pc.read(buff, 3);
-    payload_start = atoi(buff);
+    payload_min = atoi(buff);
     
-    // payload_stop
+    // payload_max
     rtos::ThisThread::sleep_for(200);
     memset(buff, '\0', sizeof(buff));
     i = pc.read(buff, 3);
-    payload_stop = atoi(buff);
+    payload_max = atoi(buff);
     
-    // increment
+    // payload_inc
     rtos::ThisThread::sleep_for(200);
     memset(buff, '\0', sizeof(buff));
     i = pc.read(buff, 3);
-    increment = atoi(buff);
+    payload_inc = atoi(buff);
     
     // round_per_payload
     rtos::ThisThread::sleep_for(200);
@@ -176,10 +168,9 @@ int main(void)
     printf("\ni = %d\n", i);
     round_per_payload = atoi(buff);
 
-    printf("key_size = %d\n", key_size);
-    printf("payload_start = %d\n", payload_start);
-    printf("payload_stop = %d\n", payload_stop);
-    printf("increment = %d\n", increment);
+    printf("payload_min = %d\n", payload_min);
+    printf("payload_max = %d\n", payload_max);
+    printf("payload_inc = %d\n", payload_inc);
     printf("round_per_payload = %d\n", round_per_payload);
 
     return 0;
