@@ -98,6 +98,9 @@ int payload_max;
 int payload_inc;
 int round_per_payload;
 int all_round;
+int exp_round = 0;
+int payload_size;
+int msg_sent_count = 0;
 
 /**
  * Entry point for application
@@ -108,7 +111,7 @@ int main(void)
     char buff[4];
 
     // Start program
-    printf("\n\n\n\nSTART\n");
+    printf("\n\n\n\nmain()\n");
 
     // Input from USB serial with format '...000aaabbbcccdddeee'
     // aaa = number of bits (128, 192, 256)
@@ -183,8 +186,6 @@ int main(void)
     }
     printf("all_round = %d\n", all_round);
 
-    return 0;
-
     // setup tracing
     setup_trace();
 
@@ -247,21 +248,38 @@ static void send_message()
     int16_t retcode;
     int32_t sensor_value;
 
+    char buffer_printf_format[7];
+
+    if (exp_round == 0) {
+        printf("START, round = %d\n", exp_round + 1);
+        payload_size = payload_min;
+    } else if (exp_round >= all_round) {
+        printf("FINISH, round = %d\n", exp_round);
+        return;
+    }
+
+    printf("payload_size = %d, round = %d\n", payload_size, exp_round + 1);
+    sprintf(buffer_printf_format, "%%0%dd", payload_size);
+
     if (ds1820.begin()) {
         ds1820.startConversion();
-        sensor_value = ds1820.read(10);
-        printf("Dummy Sensor Value = %d\n", sensor_value);
+        sensor_value = ds1820.read(payload_size);
+        printf("data = ");
+        printf(buffer_printf_format, sensor_value);
+        printf("\n");
         ds1820.startConversion();
     } else {
         printf("No sensor found\n");
         return;
     }
 
-    packet_len = sprintf((char *) tx_buffer, "Dummy Sensor Value is %d",
+    packet_len = sprintf((char *) tx_buffer, buffer_printf_format,
                          sensor_value);
 
     retcode = lorawan.send(MBED_CONF_LORA_APP_PORT, tx_buffer, packet_len,
                            MSG_UNCONFIRMED_FLAG);
+
+    printf("retcode = %d, payload_size = %d, round = %d\n", retcode, payload_size, exp_round + 1);
 
     if (retcode < 0) {
         retcode == LORAWAN_STATUS_WOULD_BLOCK ? printf("send - WOULD BLOCK\n")
@@ -276,8 +294,26 @@ static void send_message()
         return;
     }
 
-    printf("%d bytes scheduled for transmission\n", retcode);
+    printf("%d bytes scheduled for transmission, payload_size = %d, round = %d\n", retcode, payload_size, exp_round + 1);
     memset(tx_buffer, 0, sizeof(tx_buffer));
+
+    ++exp_round;
+
+    if ((exp_round % round_per_payload) == 0) {
+        ; // trigger here
+        payload_size += payload_inc;
+    }
+
+    if (payload_size > payload_max) {
+        payload_size = payload_max;
+    }
+
+    /*
+    if (exp_round == all_round) {
+        printf("FINISH, round = %d\n", exp_round);
+    }
+    */
+
 }
 
 /**
@@ -323,7 +359,7 @@ static void lora_event_handler(lorawan_event_t event)
             printf("Disconnected Successfully\n");
             break;
         case TX_DONE:
-            printf("Message Sent to Network Server\n");
+            printf("Message Sent to Network Server, msg_sent_count = %d\n", ++msg_sent_count);
             if (MBED_CONF_LORA_DUTY_CYCLE_ON) {
                 send_message();
             }
