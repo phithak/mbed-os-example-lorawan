@@ -15,6 +15,7 @@
  * limitations under the License.
  */
 #include <stdio.h>
+#include "mbed.h"
 
 #include "lorawan/LoRaWANInterface.h"
 #include "lorawan/system/lorawan_data_structures.h"
@@ -24,6 +25,8 @@
 #include "DummySensor.h"
 #include "trace_helper.h"
 #include "lora_radio_helper.h"
+
+static BufferedSerial pc(USBTX, USBRX);
 
 using namespace events;
 
@@ -88,10 +91,99 @@ static LoRaWANInterface lorawan(radio);
 static lorawan_app_callbacks_t callbacks;
 
 /**
+ * Global variables for experiments
+ */
+int all_round;
+int current_round;
+int increment;
+int payload_start;
+int payload_stop;
+int key_size;
+int round_per_payload;
+
+/**
  * Entry point for application
  */
 int main(void)
 {
+    char c[2];
+    char buff[4];
+
+    // Start program
+    printf("\n\n\n\nSTART\n");
+
+    // Input from USB serial with format '...000aaabbbcccdddeee'
+    // aaa = number of bits (128, 192, 256)
+    // bbb = number of beginning payload size (1 to 222)
+    // ccc = number of ending pay load size (1 to 222)
+    // ddd = number of increment
+    // eee = number of rounds
+    while(1) {
+        pc.read(c, 1);
+        // Check the 1st '0' char
+        if (c[0] == '0') {
+            pc.read(c, 1);
+            // Check the 2nd '0' char
+            if (c[0] == '0') {
+                pc.read(c, 1);
+                // Check the 3rd '0' char
+                if (c[0] == '0') {
+                    break;
+                } else {
+                    continue;
+                }
+            } else {
+                continue;
+            }
+        } else {
+            continue;
+        }
+    }
+
+    // Cannot read too long USB serial input
+    // Extract USB serial input to variables
+    // Print i for debugging if needed
+    int i;
+
+    // key_size
+    rtos::ThisThread::sleep_for(200);
+    memset(buff, '\0', sizeof(buff));
+    i = pc.read(buff, 3);
+    key_size = atoi(buff);
+
+    // payload_start
+    rtos::ThisThread::sleep_for(200);
+    memset(buff, '\0', sizeof(buff));
+    i = pc.read(buff, 3);
+    payload_start = atoi(buff);
+    
+    // payload_stop
+    rtos::ThisThread::sleep_for(200);
+    memset(buff, '\0', sizeof(buff));
+    i = pc.read(buff, 3);
+    payload_stop = atoi(buff);
+    
+    // increment
+    rtos::ThisThread::sleep_for(200);
+    memset(buff, '\0', sizeof(buff));
+    i = pc.read(buff, 3);
+    increment = atoi(buff);
+    
+    // round_per_payload
+    rtos::ThisThread::sleep_for(200);
+    memset(buff, '\0', sizeof(buff));
+    i = pc.read(buff, 3);
+    printf("\ni = %d\n", i);
+    round_per_payload = atoi(buff);
+
+    printf("key_size = %d\n", key_size);
+    printf("payload_start = %d\n", payload_start);
+    printf("payload_stop = %d\n", payload_stop);
+    printf("increment = %d\n", increment);
+    printf("round_per_payload = %d\n", round_per_payload);
+
+    return 0;
+
     // setup tracing
     setup_trace();
 
