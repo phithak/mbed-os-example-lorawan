@@ -93,6 +93,8 @@ static lorawan_app_callbacks_t callbacks;
 /**
  * Global variables for experiments
  */
+int key_size;
+int exp_func;
 int payload_min;
 int payload_max;
 int payload_inc;
@@ -102,33 +104,37 @@ int exp_round = 0;
 int payload_size;
 int msg_sent_count = 0;
 
+#define IS_EXP_COMPUTE_MIC 1
+#define IS_EXP_ENCRYPT_PAYLOAD 2
+#define IS_EXP_KEYSIZE_128 1
+#define IS_EXP_KEYSIZE_192 2
+#define IS_EXP_KEYSIZE_256 3
+
 /**
  * Entry point for application
  */
 int main(void)
 {
     char c[2];
-    char buff[4];
+    uint8_t buff[6];
 
     // Start program
+    wait_us(5000000);   // wait for 5 seconds
     printf("\n\n\n\nmain()\n");
 
-    // Input from USB serial with format '...000aaabbbcccdddeee'
-    // aaa = number of bits (128, 192, 256)
-    // bbb = number of beginning payload size (1 to 222)
-    // ccc = number of ending pay load size (1 to 222)
-    // ddd = number of payload_inc
-    // eee = number of rounds
+    // Input from USB serial with format 
+    // '...000[exp_func][key_size][payload_min]
+    // [payload_max][payload_inc][round_per_payload]'
     while(1) {
         pc.read(c, 1);
-        // Check the 1st '0' char
-        if (c[0] == '0') {
+        // Check the 1st '\0' char
+        if (c[0] == '\0') {
             pc.read(c, 1);
-            // Check the 2nd '0' char
-            if (c[0] == '0') {
+            // Check the 2nd '\0' char
+            if (c[0] == '\0') {
                 pc.read(c, 1);
-                // Check the 3rd '0' char
-                if (c[0] == '0') {
+                // Check the 3rd '\0' char
+                if (c[0] == '\0') {
                     break;
                 } else {
                     continue;
@@ -141,35 +147,38 @@ int main(void)
         }
     }
 
-    // Cannot read too long USB serial input
-    // Extract USB serial input to variables
-    // Print i for debugging if needed
-    int i;
-
-    // payload_min
-    rtos::ThisThread::sleep_for(200);
+    wait_us(200000);
     memset(buff, '\0', sizeof(buff));
-    i = pc.read(buff, 3);
-    payload_min = atoi(buff);
-    
-    // payload_max
-    rtos::ThisThread::sleep_for(200);
-    memset(buff, '\0', sizeof(buff));
-    i = pc.read(buff, 3);
-    payload_max = atoi(buff);
-    
-    // payload_inc
-    rtos::ThisThread::sleep_for(200);
-    memset(buff, '\0', sizeof(buff));
-    i = pc.read(buff, 3);
-    payload_inc = atoi(buff);
-    
-    // round_per_payload
-    rtos::ThisThread::sleep_for(200);
-    memset(buff, '\0', sizeof(buff));
-    i = pc.read(buff, 3);
-    round_per_payload = atoi(buff);
-
+    pc.read(buff, sizeof(buff));
+    switch (buff[0]) {
+        case IS_EXP_COMPUTE_MIC:
+            exp_func = 'c';
+            break;
+        case IS_EXP_ENCRYPT_PAYLOAD: 
+            exp_func = 'e';
+            break;
+        default:
+            exp_func = 'c';
+    }
+    switch (buff[1]) {
+        case IS_EXP_KEYSIZE_128:
+            key_size = 128;
+            break;
+        case IS_EXP_KEYSIZE_192:
+            key_size = 192;
+            break;
+        case IS_EXP_KEYSIZE_256:
+            key_size = 256;
+            break;
+        default:
+            key_size = 128;
+    }
+    payload_min = (int) buff[2];
+    payload_max = (int) buff[3];
+    payload_inc = (int) buff[4];
+    round_per_payload = (int) buff[5];
+    printf("exp_func = %c\n", exp_func);
+    printf("key_size = %d\n", key_size);
     printf("payload_min = %d\n", payload_min);
     printf("payload_max = %d\n", payload_max);
     printf("payload_inc = %d\n", payload_inc);
@@ -255,6 +264,7 @@ static void send_message()
         payload_size = payload_min;
     } else if (exp_round >= all_round) {
         printf("FINISH, round = %d\n", exp_round);
+        //exp_round = 0;
         return;
     }
 
