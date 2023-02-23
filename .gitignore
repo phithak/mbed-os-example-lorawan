@@ -43,3 +43,4 @@ cmake_build/
 
 # others
 mbed_app.json
+.*.swp
