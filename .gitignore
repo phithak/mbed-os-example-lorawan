@@ -43,4 +43,5 @@ cmake_build/
 
 # others
 mbed_app.json
+mbed_app.json.backup
 .*.swp
