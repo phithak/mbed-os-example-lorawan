@@ -1,8 +1,0 @@
-export WORK_DIR=$PWD/..
-export TOOLCHAIN_DIR=$WORK_DIR/arm-gnu-toolchain
-export PATH=$TOOLCHAIN_DIR/bin:$PATH
-
-export CMAKE_DIR=$WORK_DIR/cmake
-export PATH=$CMAKE_DIR/bin:$PATH
-
-source $WORK_DIR/.mbed/bin/activate
