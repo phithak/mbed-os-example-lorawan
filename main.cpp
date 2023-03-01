@@ -33,7 +33,7 @@ using namespace events;
 // Max payload size can be LORAMAC_PHY_MAXPAYLOAD.
 // This example only communicates with much shorter messages (<30 bytes).
 // If longer messages are used, these buffers must be changed accordingly.
-uint8_t tx_buffer[30];
+uint8_t tx_buffer[222];
 uint8_t rx_buffer[30];
 
 /*
@@ -119,6 +119,9 @@ int main(void)
     uint8_t buff[6];
 
     // Start program
+    printf("\n\n\n\n\n");
+    wait_us(5000000);   // wait for 5 seconds
+    printf("\n\n\n\nSTART\n");
     wait_us(5000000);   // wait for 5 seconds
     printf("\n\n\n\nmain()\n");
 
