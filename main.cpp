@@ -51,7 +51,7 @@ uint8_t rx_buffer[30];
 /**
  * Maximum number of retries for CONFIRMED messages before giving up
  */
-#define CONFIRMED_MSG_RETRY_COUNTER     3
+#define CONFIRMED_MSG_RETRY_COUNTER     1
 
 /**
  * Dummy pin for dummy sensor
