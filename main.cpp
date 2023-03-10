@@ -103,6 +103,7 @@ int all_round;
 int exp_round = 0;
 int payload_size;
 int msg_sent_count = 0;
+uint32_t used_fcnt = UINT32_MAX;
 
 #define IS_EXP_COMPUTE_MIC 1
 #define IS_EXP_ENCRYPT_PAYLOAD 2
@@ -197,6 +198,7 @@ int main(void)
         all_round *= round_per_payload;
     }
     printf("all_round = %d\n", all_round);
+    printf("used_fcnt = %lu\n", used_fcnt);
 
     // setup tracing
     setup_trace();
