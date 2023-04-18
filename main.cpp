@@ -26,6 +26,9 @@
 #include "trace_helper.h"
 #include "lora_radio_helper.h"
 
+// JouleScope
+#include "joulescope/joulescope_debug.h"
+
 static BufferedSerial pc(USBTX, USBRX);
 
 using namespace events;
