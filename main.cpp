@@ -122,14 +122,16 @@ int main(void)
     char c[2];
     uint8_t buff[6];
 
+    printf("\n\n\n\n\n");
+    wait_us(5000000);   // wait for 5 seconds
     js_pulse(6);
     printf("pulse=6, main()\n");
     // Start program
-    printf("\n\n\n\n\n");
+    //printf("\n\n\n\n\n");
     //wait_us(5000000);   // wait for 5 seconds
-    printf("\n\n\n\nSTART\n");
+    //printf("\n\n\n\nSTART\n");
     //wait_us(5000000);   // wait for 5 seconds
-    printf("\n\n\n\nmain()\n");
+    //printf("\n\n\n\nmain()\n");
 
     // Input from USB serial with format 
     // '...000[exp_func][key_size][payload_min]
@@ -211,6 +213,10 @@ int main(void)
         ++all_round;
         all_round *= round_per_payload;
     }
+
+    // only one round
+    all_round = 1;    
+
     printf("all_round = %d\n", all_round);
     printf("used_fcnt = %lu\n", used_fcnt);
 
@@ -222,7 +228,7 @@ int main(void)
 
     // Initialize LoRaWAN stack
     js_pulse(7);
-    printf("pulse=7, lorawan.initialized()\n");
+    //printf("pulse=7, lorawan.initialized()\n");
     if (lorawan.initialize(&ev_queue) != LORAWAN_STATUS_OK) {
         printf("LoRa initialization failed!\n");
         return -1;
@@ -253,7 +259,7 @@ int main(void)
     printf("Adaptive data  rate (ADR) - Enabled\n");
 
     js_pulse(8);
-    printf("pulse=8, lorawan.connect()\n");
+    //printf("pulse=8, lorawan.connect()\n");
     retcode = lorawan.connect();
 
     if (retcode == LORAWAN_STATUS_OK ||
@@ -382,7 +388,7 @@ static void lora_event_handler(lorawan_event_t event)
             printf("Connection - Successful\n");
             if (MBED_CONF_LORA_DUTY_CYCLE_ON) {
                 js_pulse(10);
-                printf("pulse=10, send_message() in CONNECTED\n");
+                //printf("pulse=10, send_message() in CONNECTED\n");
                 send_message();
             } else {
                 ev_queue.call_every(TX_TIMER, send_message);
@@ -397,7 +403,7 @@ static void lora_event_handler(lorawan_event_t event)
             printf("Message Sent to Network Server, msg_sent_count = %d\n", ++msg_sent_count);
             if (MBED_CONF_LORA_DUTY_CYCLE_ON) {
                 js_pulse(11);
-                printf("pulse=11, send_message() in TX_DONE\n");
+                //printf("pulse=11, send_message() in TX_DONE\n");
                 send_message();
             }
             break;
